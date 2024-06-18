@@ -6,6 +6,7 @@ import (
 	"sync"
 	"testing"
 
+	//nolint:depguard
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,13 +51,66 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+
+		wasInCache := c.Set("key1", 1)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("key2", 2)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("key3", 3)
+		require.False(t, wasInCache)
+
+		// first element should be removed
+		wasInCache = c.Set("key4", 4)
+		require.False(t, wasInCache)
+
+		val, ok := c.Get("key1")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("key4")
+		require.True(t, ok)
+		require.Equal(t, 4, val)
+
+		wasInCache = c.Set("key2", 22)
+		require.True(t, wasInCache)
+
+		wasInCache = c.Set("key3", 33)
+		require.True(t, wasInCache)
+
+		// least recently used element should be removed
+		wasInCache = c.Set("key5", 5)
+		require.False(t, wasInCache)
+
+		val, ok = c.Get("key4")
+		require.False(t, ok)
+		require.Nil(t, val)
+	})
+
+	t.Run("clear", func(t *testing.T) {
+		c := NewCache(2)
+
+		wasInCache := c.Set("key1", 1)
+		require.False(t, wasInCache)
+
+		wasInCache = c.Set("key2", 2)
+		require.False(t, wasInCache)
+
+		c.Clear()
+
+		val, ok := c.Get("key1")
+		require.False(t, ok)
+		require.Nil(t, val)
+
+		val, ok = c.Get("key2")
+		require.False(t, ok)
+		require.Nil(t, val)
 	})
 }
 
-func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
-
+func TestCacheMultithreading(*testing.T) {
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
