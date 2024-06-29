@@ -6,7 +6,6 @@ import (
 	"sync"
 	"testing"
 
-	//nolint:depguard
 	"github.com/stretchr/testify/require"
 )
 
