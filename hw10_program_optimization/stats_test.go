@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -35,5 +36,22 @@ func TestGetDomainStat(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("empty data", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(""), "com")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("empty domain", func(t *testing.T) {
+		result, err := GetDomainStat(bytes.NewBufferString(data), "")
+		require.NoError(t, err)
+		require.Equal(t, DomainStat{}, result)
+	})
+
+	t.Run("invalid data", func(t *testing.T) {
+		_, err := GetDomainStat(bytes.NewBufferString("invalid data"), "com")
+		require.Error(t, err)
 	})
 }
